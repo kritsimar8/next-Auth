@@ -2,7 +2,8 @@
 // an array of routes that are accessible to the public.
 // these routes do not require authenication
 export const publicRoutes=[
-    "/"
+    "/",
+    "/auth/new-verification"
 ];
 
 //an array of routes used for authentication 
@@ -11,7 +12,9 @@ export const publicRoutes=[
 export const authRoutes=[
     "/auth/login",
     "/auth/register",
-    "/auth/error"
+    "/auth/error",
+    "/auth/reset",
+    "/auth/new-password"
 ];
 
 //The prefix for api authentication routes 
