@@ -7,6 +7,7 @@ import { UserRole } from "@prisma/client"
 
 import { db } from "./lib/db"
 import authConfig from "./auth.config"
+import { getTwoFactorConfirmationByUserId } from "@/data/two-factor-confirmation"
 
 
 export const{
@@ -30,13 +31,25 @@ export const{
 
     callbacks:{
         async signIn({user,account}){
-            console.log({
-                user,
-                account
-            })
+            console.log({account,user})
+            
             if(account?.provider!=="credentials") return true;
             const existingUser= await getUserById(user.id);
             if(!existingUser?.emailVerified) return false;
+           
+            
+            if (existingUser.isTwoFactorEnabled){
+               
+                const twoFactorConfirmation= await getTwoFactorConfirmationByUserId(existingUser.id);
+
+                console.log({twoFactorConfirmation})
+                if(!twoFactorConfirmation) return false;
+
+                await db.twoFactorConfirmation.delete({
+                    where:{id:twoFactorConfirmation.id}
+                })
+            }
+
 
             return true;
         },
@@ -47,10 +60,13 @@ export const{
             if(token.sub&& session.user){
                 session.user.id=token.sub;
             }
-            session.user.customField="anything"
+            
            
             if (token.role && session.user){
                 session.user.role = token.role as UserRole ;
+            }
+            if (session.user){
+                session.user.isTwoFactorEnabled = token.isTwoFactorEnabled as boolean;
             }
             
             return session
@@ -63,6 +79,8 @@ export const{
 
             if(!existingUser) return token;
             token.role= existingUser.role;
+            token.isTwoFactorEnabled= existingUser.isTwoFactorEnabled;
+
             
             return token; 
         }
