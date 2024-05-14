@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
 import { UserInfo } from "@/components/user-info"
 import { useCurrentUser } from "@/hooks/use-current-user";
 
-const ClientPage = async()=>{
-    const user =await useCurrentUser();
+const ClientPage = ()=>{
+    const user = useCurrentUser();
 
     return(
         <UserInfo
